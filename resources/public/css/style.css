@@ -1,0 +1,53 @@
+/* some style */
+
+.block {
+  position: absolute;
+  margin: 5px;
+  width: 520px;
+  height: 150px;
+  background-color: #aaa;
+}
+
+.block-io {
+  height: 120px;
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+.block-io-input {
+  height: 50px;
+}
+
+.block-io input {
+  font-size: 14px;
+  height: 24px;
+  border: 1px solid #88F;
+  width: 100px;
+}
+
+.io-arrow {
+  display: inline-block;
+  font-size: 18px;
+}
+
+.block-src {
+  position: absolute;
+  top: 0;
+  left: 120px;
+  height: 94px;
+  border: 1px solid #22F;
+  font-size: 14px;
+  padding: 3px 5px;
+}
+
+.block-btns {
+  position: absolute;
+  top: 110px;
+  right: 50px;
+}
+
+.block-btns button {
+  height: 30px;
+  font-size: 14px;
+}
