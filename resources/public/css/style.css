@@ -52,6 +52,10 @@ textarea {
   right: 50px;
 }
 
+.block-btns .error {
+  margin-right: 10px;
+}
+
 .block-btns button {
   height: 30px;
   font-size: 14px;

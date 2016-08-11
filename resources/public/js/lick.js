@@ -15,12 +15,12 @@ let blocks1 = {
 
 let blocks2 = {
   mapper: {
-    source: 'function mapper(items) {\n  return items.map((item) => { return item+1 });\n}',
+    source: 'function mapper(items) {\n  return items.map((item) => { return item+1 })\n}',
     output: '',
     input: '[[1, 2, 3, 4, 5]]',
   },
   printer: {
-    source: 'function printer(items) {\n  console.log(items); return true;\n}',
+    source: 'function printer(items) {\n  console.log(items) return true\n}',
     output: '',
     input: '[[1, 2]]'
   }
@@ -81,7 +81,7 @@ class Inputter extends React.Component {
   }
 
   showModal(e) {
-    updateModal({active: true, name: this.props.name, value: this.props.value});
+    updateModal({active: true, name: this.props.name, value: this.props.value})
   }
 
   render() {
@@ -99,28 +99,41 @@ class Inputter extends React.Component {
 class Block extends React.Component {
   constructor() {
     super()
+    this.state = {error: ''}
   }
 
   reCompile(e) {
     updateBlock(this.props.name, 'source', e.target.value)
-    //state.blocks[this.props.name].source = e.target.value
     this.compile()
-    //reRender()
   }
 
   compile() {
     let name = this.props.name
     let myBlock = this.props.blocks[name]
     let mappedSource = myBlock.source.replace(/\$([a-z]+)/g, "state.blocks.$1.program")
+    let setState = this.setState.bind(this) // yuck
+
     updateBlock(name, 'program', function() {
-      //console.log('arguments inside run: ', arguments)
+
       var args = Array.prototype.slice.call(arguments)
       updateBlock(name, 'input', JSON.stringify(args))
-//      state.blocks[name].input = 
-      let output = eval('(' + mappedSource + ')').apply(null, arguments)
+
+      let program = eval('(' + mappedSource + ')')
+
+      let output = ''
+      try {
+        output = program.apply(null, arguments)
+        setState({error: ''})
+      } catch (e) {
+        //output = e.message
+        setState({error: e.message})
+        //throw e
+        //should I stay or should I throw
+        //so come on and let me know now
+      }
+
       updateBlock(name, 'output', JSON.stringify(output))
-//      state.blocks[name].output = JSON.stringify(output)
-  //    reRender()
+
       return output
     }, false)
   }
@@ -135,7 +148,11 @@ class Block extends React.Component {
   render() {
     let myBlock = this.props.blocks[this.props.name]
     this.compile()
-    let style = {left: this.props.left+'px', top: this.props.top+'px'}
+    let style = {
+      left: this.props.left+'px',
+      top: this.props.top+'px',
+      backgroundColor: this.state.error === '' ? '#bdf': 'red'
+    }
     //console.log('style: ', style)
     return <div className='block' style={style}>
               <div className='block-io'>
@@ -152,6 +169,7 @@ class Block extends React.Component {
                 rows='8' cols='50'
                 onChange={(e) => this.reCompile(e)} value={myBlock.source}></textarea>
               <div className='block-btns'>
+                <span className='error'>{this.state.error}</span>
                 <button onClick={(e) => this.run(e)}>Run</button>
               </div>
             </div>
@@ -179,6 +197,6 @@ class Blocks extends React.Component {
 ReactDOM.render(
         <Blocks />,
         document.getElementById('app')
-      );
+      )
 
 reRender()
