@@ -1,9 +1,9 @@
-let state = {
+let blocks1 = {
   greet: {
     source: 'function greet(name, greeting) {\n  return greeting+" "+$formalize(name, "Clayton")\n}',
     program: null,
     output: '',
-    input: '["Dave","Hi!"]'
+    input: '["Davey Higglepiggle Willums","Hi!"]'
   },
   formalize: {
     source: 'function formalize(first, last) {\n  return "Mr. "+first+" "+last\n}',
@@ -13,7 +13,7 @@ let state = {
   }
 }
 
-let state2 = {
+let blocks2 = {
   mapper: {
     source: 'function mapper(items) {\n  return items.map((item) => { return item+1 });\n}',
     output: '',
@@ -25,7 +25,11 @@ let state2 = {
     input: '[[1, 2]]'
   }
 }
-state = state2
+
+let state = {
+  blocks: blocks1,
+  modal: {active: false, value: ''}
+}
 
 let rootRenderer
 
@@ -34,40 +38,79 @@ function reRender() {
     rootRenderer.setState(state)
 }
 
+class InputModal extends React.Component {
+  deactivate(e) {
+    state.modal.active = false
+    reRender()
+  }
+  
+  render() {
+    let display = this.props.settings.active ? 'block' : 'none'
+    let style = {display: display}
+    return <div style={style} className='modal'>
+      <div class='modal-header'>
+        <button onClick={(e) => this.deactivate(e)}>✕</button>
+      </div>
+      {this.props.settings.value}
+    </div>
+  }
+}
+
+class Inputter extends React.Component {
+  changeInput(e) {
+    state.blocks[this.props.name].input = e.target.value
+    reRender()
+  }
+
+  showModal(e) {
+    state.modal = {active: true, value: this.props.value}
+    reRender()
+  }
+
+  render() {
+    // TODO: if input value is too large/complex:
+    // * show an abbreviated readonly representation
+    // * let user click this to open a modal window to see all data and edit it
+    let abbrev
+    if (this.props.value.length > 15) {
+      abbrev = this.props.value.substr(0, 13) + '...'
+    }
+    if (abbrev) {
+      return <input onClick={(e) => this.showModal(e)} value={abbrev} readOnly />
+    }
+    return <input onChange={(e) => this.changeInput(e)} value={this.props.value} />
+  }
+}
+
 class Block extends React.Component {
   constructor() {
     super()
   }
 
   reCompile(e) {
-    state[this.props.name].source = e.target.value
+    state.blocks[this.props.name].source = e.target.value
     this.compile()
     reRender()
   }
 
   compile() {
     let myBlock = this.props.blocks[this.props.name]
-    let mappedSource = myBlock.source.replace(/\$([a-z]+)/g, "state.$1.program")
+    let mappedSource = myBlock.source.replace(/\$([a-z]+)/g, "state.blocks.$1.program")
     let name = this.props.name
-    state[this.props.name].program = function() {
+    state.blocks[this.props.name].program = function() {
       //console.log('arguments inside run: ', arguments)
       var args = Array.prototype.slice.call(arguments)
-      state[name].input = JSON.stringify(args)
+      state.blocks[name].input = JSON.stringify(args)
       let output = eval('(' + mappedSource + ')').apply(null, arguments)
-      state[name].output = JSON.stringify(output)
+      state.blocks[name].output = JSON.stringify(output)
       reRender()
       return output
     }
   }
 
-  changeInput(e) {
-    state[this.props.name].input = e.target.value
-    reRender()
-  }
-
   run(e) {
     let myBlock = this.props.blocks[this.props.name]
-    let args = eval(myBlock.input)//.split(',')
+    let args = eval(myBlock.input)
     //console.log('args evald from "'+myBlock.input+'": ', args)
     console.log(myBlock.program.apply(null, args))
   }
@@ -80,7 +123,7 @@ class Block extends React.Component {
     return <div className='block' style={style}>
               <div className='block-io'>
                 <div className='block-io-input'>
-                  <input onChange={(e) => this.changeInput(e)} value={myBlock.input} />
+                  <Inputter name={this.props.name} value={myBlock.input} />
                   <div className='io-arrow'>→</div>
                 </div>
                 <div className='block-io-input'>
@@ -108,11 +151,11 @@ class Blocks extends React.Component {
     if(!this.state) return <div>Loading</div>
 
     let blocks=[], x=0, y=0
-    for (let k in this.state) {
-      blocks.push(<Block key={k} name={k} blocks={this.state} left={x} top={y} />)
+    for (let k in this.state.blocks) {
+      blocks.push(<Block key={k} name={k} blocks={this.state.blocks} left={x} top={y} />)
       x += 520
     }
-    return <div>{blocks}</div>
+    return <div>{blocks}<InputModal settings={this.state.modal} /></div>
   }
 }
 
