@@ -1,11 +1,13 @@
-/* some style */
+body {
+  margin: 0;
+  background-color: #bdf;
+}
 
 .block {
   position: absolute;
   margin: 5px;
   width: 520px;
   height: 150px;
-  background-color: #aaa;
 }
 
 .block-io {
@@ -37,6 +39,9 @@
   left: 120px;
   height: 94px;
   border: 1px solid #22F;
+}
+
+textarea {
   font-size: 14px;
   padding: 3px 5px;
 }
@@ -62,4 +67,21 @@
   border: 1px solid #22F;
   display: none;
   background-color: white;
+}
+
+.modal-header {
+  line-height: 38px;
+  font-size: 22px;
+}
+
+.modal-header button {
+  position: absolute;
+  right: 10px;
+  height: 30px;
+  font-size: 16px;
+}
+
+.modal-input {
+  width: 98%;
+  height: 90%;
 }

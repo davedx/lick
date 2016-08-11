@@ -28,10 +28,22 @@ let blocks2 = {
 
 let state = {
   blocks: blocks1,
-  modal: {active: false, value: ''}
+  modal: {active: false, name: '', value: ''}
 }
 
 let rootRenderer
+
+function updateBlock(blockName, key, value, render = true) {
+  state.blocks[blockName][key] = value
+  if(render)
+    reRender()
+}
+
+function updateModal(props) {
+  state.modal = props
+  //console.log('modal state: ', state.modal)
+  reRender()
+}
 
 function reRender() {
   if(rootRenderer)
@@ -43,34 +55,36 @@ class InputModal extends React.Component {
     state.modal.active = false
     reRender()
   }
-  
+
+  onChange(e) {
+    state.modal.value = e.target.value
+    updateBlock(this.props.settings.name, 'input', e.target.value)
+  }
+
   render() {
     let display = this.props.settings.active ? 'block' : 'none'
     let style = {display: display}
     return <div style={style} className='modal'>
-      <div class='modal-header'>
+      <div className='modal-header'>
+        Input
         <button onClick={(e) => this.deactivate(e)}>✕</button>
       </div>
-      {this.props.settings.value}
+      <textarea className='modal-input'
+        onChange={(e) => this.onChange(e)} value={this.props.settings.value} />
     </div>
   }
 }
 
 class Inputter extends React.Component {
   changeInput(e) {
-    state.blocks[this.props.name].input = e.target.value
-    reRender()
+    updateBlock(this.props.name, 'input', e.target.value)
   }
 
   showModal(e) {
-    state.modal = {active: true, value: this.props.value}
-    reRender()
+    updateModal({active: true, name: this.props.name, value: this.props.value});
   }
 
   render() {
-    // TODO: if input value is too large/complex:
-    // * show an abbreviated readonly representation
-    // * let user click this to open a modal window to see all data and edit it
     let abbrev
     if (this.props.value.length > 15) {
       abbrev = this.props.value.substr(0, 13) + '...'
@@ -88,24 +102,27 @@ class Block extends React.Component {
   }
 
   reCompile(e) {
-    state.blocks[this.props.name].source = e.target.value
+    updateBlock(this.props.name, 'source', e.target.value)
+    //state.blocks[this.props.name].source = e.target.value
     this.compile()
-    reRender()
+    //reRender()
   }
 
   compile() {
-    let myBlock = this.props.blocks[this.props.name]
-    let mappedSource = myBlock.source.replace(/\$([a-z]+)/g, "state.blocks.$1.program")
     let name = this.props.name
-    state.blocks[this.props.name].program = function() {
+    let myBlock = this.props.blocks[name]
+    let mappedSource = myBlock.source.replace(/\$([a-z]+)/g, "state.blocks.$1.program")
+    updateBlock(name, 'program', function() {
       //console.log('arguments inside run: ', arguments)
       var args = Array.prototype.slice.call(arguments)
-      state.blocks[name].input = JSON.stringify(args)
+      updateBlock(name, 'input', JSON.stringify(args))
+//      state.blocks[name].input = 
       let output = eval('(' + mappedSource + ')').apply(null, arguments)
-      state.blocks[name].output = JSON.stringify(output)
-      reRender()
+      updateBlock(name, 'output', JSON.stringify(output))
+//      state.blocks[name].output = JSON.stringify(output)
+  //    reRender()
       return output
-    }
+    }, false)
   }
 
   run(e) {
