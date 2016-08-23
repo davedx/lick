@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+      * {
+        font-family: sans-serif;
+        color: #363639;
+      }
+      html {
+        background: #F1F0EF;
+      }
+      .app {
+        width: 1024px; /*610px;*/
+        margin: 20px auto;
+        background: white;
+      }
+      .left {
+        width: 512px;
+        display: inline-block;
+        vertical-align: top;
+      }
+      .right {
+        width: 512px;
+        display: inline-block;
+        vertical-align: top;
+      }
+      h2 {
+        font-size: 26px;
+        line-height: 31px;
+      }
+      .heading-top {
+        margin: 0;
+        padding: 40px 0 30px;
+        font-weight: lighter;
+        text-align: center;
+      }
+      label {
+        font-size: 18px;
+        display: inline-block; width: 220px;
+        text-align: right;
+        padding-right: 15px;
+      }
+      .diet label {
+        width: 150px;
+        padding-right: 5px;
+      }
+      .diet .radio-50 {
+        width: 50%;
+        display: inline-block;
+      }
+      .diet .radio-50.left label {
+        width: 190px;
+      }
+      h3 {
+        font-size: 22px;
+        line-height: 28px;
+        font-weight: lighter;
+        margin-top: 38px;
+        text-align: center;
+      }
+      .input-container {
+        display: inline-block;
+      }
+      input {
+        display: inline-block;
+        background: #F2F2F2;
+        color: #666;
+        border: 0;
+        padding: 7px;
+        font-weight: lighter;
+        font-size: 18px;
+        margin: 10px 0;
+      }
+      .unit {
+        display: inline-block;
+        position: relative;
+        width: 30px;
+        left: -42px;
+        font-weight: lighter;
+        color: #888;
+        text-align: right;
+      }
+      ol {
+        margin-left: 60px;
+      }
+      li {
+        font-size: 18px;
+        line-height: 30px;
+      }
+      .refs-header {
+        width: 50%;
+        margin-top: 100px;
+      }
+      .sources {
+        padding-bottom: 70px;
+      }
+      .sources li {
+        font-size: 17px;
+      }
+    </style>
+    <script src="js/react.js"></script>
+    <script src="js/react-dom.js"></script>
+    <script src="js/browser.min.js"></script>
+  </head>
+  <body>
+    <div id="app"></div>
+    <script type="text/babel" src="js/co2.js"></script>
+  </body>
+</html>

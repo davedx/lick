@@ -28,7 +28,10 @@ let blocks2 = {
 
 let state = {
   blocks: blocks1,
-  modal: {active: false, name: '', value: ''}
+  modal: {active: false, name: '', value: ''},
+  controls: {
+    create: {active: false}
+  }
 }
 
 let rootRenderer
@@ -102,15 +105,49 @@ class Block extends React.Component {
     this.state = {error: ''}
   }
 
+  componentDidMount () {
+    this.compile()
+  }
+
   reCompile(e) {
     updateBlock(this.props.name, 'source', e.target.value)
     this.compile()
   }
 
+  toggleCreateBlock (active, name) {
+    this.setState({createBlock: active, createName: name})
+  }
+
+  createBlock(e) {
+    const name = this.state.createName
+    state.blocks[name] = {
+      source: 'function '+name+' () {\n\n}',
+      output: '',
+      input: '[]'
+    }
+    // recompile to re-bind to the new block
+    this.compile()
+    reRender()
+  }
+
+  functioner (match, p1) {
+    //console.log('functioner: ', funcName, f)
+    if (state.blocks[p1]) {
+      state.prevMatch = p1
+      this.toggleCreateBlock(false, p1)
+      return "state.blocks." + p1 + ".program"
+    } else {
+      // show create block
+      this.toggleCreateBlock(true, p1)
+    }
+  }
+
   compile() {
     let name = this.props.name
     let myBlock = this.props.blocks[name]
-    let mappedSource = myBlock.source.replace(/\$([a-z]+)/g, "state.blocks.$1.program")
+    //TODO: replace regex replacement with a function. the function should check if $1.program
+    //exists. If not, it should create a new block with the function name.
+    let mappedSource = myBlock.source.replace(/\$([a-z]+)/g, this.functioner.bind(this))
     let setState = this.setState.bind(this) // yuck
 
     updateBlock(name, 'program', function() {
@@ -147,12 +184,12 @@ class Block extends React.Component {
 
   render() {
     let myBlock = this.props.blocks[this.props.name]
-    this.compile()
     let style = {
       left: this.props.left+'px',
       top: this.props.top+'px',
       backgroundColor: this.state.error === '' ? '#bdf': 'red'
     }
+    let createStyle = {display: this.state.createBlock ? 'inline-block' : 'none'}
     //console.log('style: ', style)
     return <div className='block' style={style}>
               <div className='block-io'>
@@ -170,6 +207,7 @@ class Block extends React.Component {
                 onChange={(e) => this.reCompile(e)} value={myBlock.source}></textarea>
               <div className='block-btns'>
                 <span className='error'>{this.state.error}</span>
+                <button style={createStyle} onClick={(e) => this.createBlock(e)}>Create '{this.state.createName}'</button>
                 <button onClick={(e) => this.run(e)}>Run</button>
               </div>
             </div>
