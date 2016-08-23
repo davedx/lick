@@ -7,6 +7,8 @@
 
 Human augmentation and man-machine symbiosis.
 
+Contrary to appearance, this project is not built in ClojureScript. :-)
+
 ## Setup
 
 Coming soon
